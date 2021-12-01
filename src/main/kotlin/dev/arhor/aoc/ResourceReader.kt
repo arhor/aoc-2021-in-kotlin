@@ -2,11 +2,7 @@ package dev.arhor.aoc
 
 object ResourceReader {
 
-    fun readInput(name: String): List<String> {
-        val resourceName = if (name.startsWith("/")) name else "/$name"
-        return this::class.java.getResourceAsStream(resourceName)
-            ?.bufferedReader()
-            ?.readLines()
-            ?: emptyList()
+    fun readInput(name: String, action: (Sequence<String>) -> Unit) {
+        this::class.java.getResourceAsStream(name)?.bufferedReader()?.useLines(action)
     }
 }
