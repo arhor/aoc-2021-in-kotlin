@@ -12,7 +12,6 @@ fun main() {
                     else      -> position to depth
                 }
             }
-
         position * depth
     }
     println("result: $result")
