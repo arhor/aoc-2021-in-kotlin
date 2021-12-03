@@ -25,13 +25,18 @@ fun main() {
     }
 
     fun solvePuzzle2(input: Sequence<String>): Int {
-        fun findRate(input: List<String>, comparator: (Int, Int) -> Boolean, bitIndex: Int = 0): Int {
+        tailrec fun findRate(input: List<String>, comparator: (Int, Int) -> Boolean, bitIndex: Int = 0): Int {
             return if (input.size == 1) {
                 input.first().toInt(2)
             } else {
-                input.partition { it[bitIndex] == '1' }
-                     .let { (leadOne, leadZero) -> if (comparator(leadOne.size, leadZero.size)) leadOne else leadZero }
-                     .let { findRate(it, comparator, bitIndex + 1) }
+                val filteredInput = input.partition { it[bitIndex] == '1' }.let { (leadOne, leadZero) ->
+                    if (comparator(leadOne.size, leadZero.size)) {
+                        leadOne
+                    } else {
+                        leadZero
+                    }
+                }
+                findRate(filteredInput, comparator, bitIndex + 1)
             }
         }
 
