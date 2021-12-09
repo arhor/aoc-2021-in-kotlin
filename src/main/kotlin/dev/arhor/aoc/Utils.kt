@@ -8,7 +8,7 @@ operator fun Pair<String, String>.plus(other: Pair<String, String>) = Pair(first
  * @param T      input type
  * @param R      output type
  * @param cache  map object to use as calculation cache, by default represented as [HashMap] instance
- * @param action action to wrap, gives read-access to the current cache via <code>this</code> reference
+ * @param action function to wrap, gives read-access to the current cache via 'this' reference
  */
 fun <T, R> caching(cache: MutableMap<T, R> = HashMap(), action: Map<T, R>.(T) -> R): (T) -> R {
     return { arg -> cache[arg] ?: cache.action(arg).also { cache[arg] = it } }
