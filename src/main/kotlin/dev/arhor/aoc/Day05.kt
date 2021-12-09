@@ -14,15 +14,13 @@ fun main() {
             if (x1 == x2 && y1 == y2) {
                 break
             }
-            if (x1 < x2) {
-                x1++
-            } else if (x1 > x2) {
-                x1--
+            when {
+                x1 < x2 -> x1++
+                x1 > x2 -> x1--
             }
-            if (y1 < y2) {
-                y1++
-            } else if (y1 > y2) {
-                y1--
+            when {
+                y1 < y2 -> y1++
+                y1 > y2 -> y1--
             }
         }
         return points
