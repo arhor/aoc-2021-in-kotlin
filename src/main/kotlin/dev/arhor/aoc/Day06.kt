@@ -3,15 +3,14 @@ package dev.arhor.aoc
 import dev.arhor.aoc.ResourceReader.readInput
 
 fun main() {
-    fun calculateFishProduction(currFishTimer: Int, days: Int, cache: MutableMap<Int, Long> = HashMap()): Long {
-        val firstBornDate = currFishTimer + 1
-        if (days < firstBornDate) {
+    fun calculateFishProduction(currFishTimer: Int, daysTotal: Int, cache: MutableMap<Int, Long> = HashMap()): Long {
+        if (daysTotal <= currFishTimer) {
             return 0
         }
-        val currFishChildren = (days - firstBornDate) / 7 + 1L
-        return (firstBornDate until days step 7).fold(currFishChildren) { count, date ->
-            val key = days - date
-            count + (cache[key] ?: calculateFishProduction(8, key, cache).also { cache[key] = it })
+        val daysLeft = daysTotal - (currFishTimer + 1)
+        val currFishChildren = daysLeft / 7 + 1L
+        return (daysLeft downTo 1 step 7).fold(currFishChildren) { count, date ->
+            count + (cache[date] ?: calculateFishProduction(8, date, cache).also { cache[date] = it })
         }
     }
 
