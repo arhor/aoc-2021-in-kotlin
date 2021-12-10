@@ -11,7 +11,11 @@ fun main() {
         '<' to '>',
     )
 
-    fun calculateScores(input: Sequence<String>, onIncorrect: (Char) -> Long? = { null }, onMissing: (Collection<Char>) -> Long = { 0 }, ): List<Long> {
+    fun calculateScores(
+        input: Sequence<String>,
+        onIncorrect: (Char) -> Long? = { null },
+        onMissing: (Collection<Char>) -> Long = { 0 },
+    ): List<Long> {
         val scores = ArrayList<Long?>()
         outer@ for (line in input) {
             val braces = LinkedList<Char>()
