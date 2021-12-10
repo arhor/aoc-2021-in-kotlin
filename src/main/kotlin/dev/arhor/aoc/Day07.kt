@@ -1,22 +1,15 @@
 package dev.arhor.aoc
 
 import dev.arhor.aoc.ResourceReader.readInput
+import java.util.stream.IntStream
 import kotlin.math.abs
 
 fun main() {
     fun solvePuzzleGeneric(input: Sequence<String>, calcCost: (steps: Int) -> Int): Int {
-        val crabs = input.first().split(",").map(String::toInt)
-        val statistics = crabs.stream().mapToInt { it }.summaryStatistics()
-        val sums = ArrayList<Int>()
-
-        for (position in statistics.min..statistics.max) {
-            var sum = 0
-            for (crab in crabs) {
-                sum += calcCost(abs(position - crab))
-            }
-            sums.add(sum)
-        }
-        return sums.minOrNull() ?: 0
+        val crabs = input.first().split(",").map(String::toInt).toIntArray()
+        val positions = IntStream.of(*crabs).summaryStatistics().let { it.min..it.max }
+        return positions.minOfOrNull { position -> crabs.sumOf { calcCost(abs(position - it)) } }
+            ?: 0
     }
 
     fun solvePuzzle1(input: Sequence<String>) = solvePuzzleGeneric(input) { steps -> steps }
