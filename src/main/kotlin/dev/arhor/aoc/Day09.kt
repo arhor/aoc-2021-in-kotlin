@@ -20,66 +20,26 @@ fun main() {
 
         fun determineRiskLevel() = findLowestPoints().sumOf { data[it] + 1 }
 
-        fun findBasin(): Int {
-            val lowestPoints = listOf(Point(86, 1)) // findLowestPoints()
-            val basins = ArrayList<Set<Point>>()
-            for (point in lowestPoints) {
-                print("processing point: $point")
-                if (basins.any { point in it }) {
-                    println(" - already in basin, skip")
-                    continue
+        fun findBasin() = findLowestPoints().asSequence()
+            .map(::calcBasin)
+            .map { it.size }
+            .sortedDescending()
+            .chunked(3)
+            .first()
+            .fold(1) { a, b -> a * b }
+
+        private fun calcBasin(point: Point, processedPoints: MutableSet<Point> = hashSetOf(point)): Set<Point> {
+            return findAdjacentLocations(point.x, point.y)
+                .filter { it !in processedPoints }
+                .map {
+                    if (data[it] == 9) {
+                        processedPoints
+                    } else {
+                        calcBasin(it, processedPoints.apply { add(it) })
+                    }
                 }
-                val basin = calcBasin(point)
-                basins += basin
-                println()
-            }
-            val first = basins.map { it.size }.sortedDescending().chunked(3).first()
-            return first.let { (a, b, c) -> a * b * c }
-
-
-//            return findLowestPoints().parallelStream()
-//                .map {
-//                    println("${Thread.currentThread().name} - processing point: $it")
-//                    calcBasin(it)
-//                }
-//                .map { it.size }
-//                .toList()
-//                .also { println("found basins: ${it.size}") }
-//                .sortedDescending()
-//                .chunked(3)
-//                .first()
-//                .let { (a, b, c) -> a * b * c }
-        }
-
-        var alreadyProcessed = 0
-
-        private fun calcBasin(point: Point, processedPoints: Set<Point> = hashSetOf(point)): Set<Point> {
-            val points = HashSet<Point>()
-            for (adjacentLocation in findAdjacentLocationsWithoutDuplicates(point.x, point.y, processedPoints)) {
-                if (adjacentLocation in processedPoints) {
-                    println("alreadyProcessed: ${++alreadyProcessed}")
-                    continue
-                }
-                val pointSet = if (data[adjacentLocation] == 9) {
-                    processedPoints
-                } else {
-                    calcBasin(adjacentLocation, processedPoints + adjacentLocation)
-                }
-                points.addAll(pointSet)
-            }
-            return points
-
-//            return findAdjacentLocations(point.x, point.y)
-//                .filter { it !in processedPoints }
-//                .map {
-//                    if (data[it] == 9) {
-//                        processedPoints
-//                    } else {
-//                        calcBasin(it, processedPoints + it)
-//                    }
-//                }
-//                .flatten()
-//                .toSet()
+                .flatten()
+                .toSet()
         }
 
         private fun findAdjacentLocations(x: Int, y: Int): List<Point> {
@@ -88,15 +48,6 @@ fun main() {
                 if (x < xMax) add(Point(x + 1, y))
                 if (y > yMin) add(Point(x, y - 1))
                 if (y < yMax) add(Point(x, y + 1))
-            }
-        }
-
-        private fun findAdjacentLocationsWithoutDuplicates(x: Int, y: Int, processed: Set<Point>): List<Point> {
-            return buildList {
-                if (x > xMin) Point(x - 1, y).takeIf { it !in processed }?.let(::add)
-                if (x < xMax) Point(x + 1, y).takeIf { it !in processed }?.let(::add)
-                if (y > yMin) Point(x, y - 1).takeIf { it !in processed }?.let(::add)
-                if (y < yMax) Point(x, y + 1).takeIf { it !in processed }?.let(::add)
             }
         }
 
