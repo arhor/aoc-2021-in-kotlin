@@ -2,6 +2,11 @@ package dev.arhor.aoc
 
 operator fun Pair<String, String>.plus(other: Pair<String, String>) = Pair(first + other.first, second + other.second)
 
+data class Point(val x: Int, val y: Int) {
+    operator fun plus(other: Point) = Point(x + other.x, y + other.y)
+    operator fun minus(other: Point) = Point(x - other.x, y - other.y)
+}
+
 /**
  * Converts passed function to the function memorizing its result according to the arguments used.
  *

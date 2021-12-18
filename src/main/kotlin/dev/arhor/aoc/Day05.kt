@@ -3,8 +3,6 @@ package dev.arhor.aoc
 import dev.arhor.aoc.ResourceReader.readInput
 
 fun main() {
-    data class Point(val x: Int, val y: Int)
-
     fun line(a: Point, b: Point): List<Point> {
         val points = ArrayList<Point>()
         var (x1, y1) = a
