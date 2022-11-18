@@ -3,8 +3,7 @@ package dev.arhor.aoc
 import dev.arhor.aoc.ResourceReader.readInput
 
 fun main() {
-    class HeightMap(input: Sequence<String>) {
-        private val data: List<IntArray> = input.map { it.map(Char::digitToInt).toIntArray() }.toList()
+    class HeightMap(input: Sequence<String>) : MatrixModel(input) {
 
         val riskLevel
             get() = findLowestPoints().sumOf { data[it] + 1 }
@@ -37,8 +36,6 @@ fun main() {
             }
             return points
         }
-
-        private operator fun List<IntArray>.get(point: Point): Int = this[point.y][point.x]
     }
 
     fun solvePuzzle1(input: Sequence<String>) = HeightMap(input).riskLevel

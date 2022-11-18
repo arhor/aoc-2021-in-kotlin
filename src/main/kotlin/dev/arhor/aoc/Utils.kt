@@ -7,6 +7,8 @@ data class Point(val x: Int, val y: Int) {
     operator fun minus(other: Point) = Point(x - other.x, y - other.y)
 }
 
+operator fun List<IntArray>.get(point: Point): Int = this[point.y][point.x]
+
 /**
  * Converts passed function to the function memorizing its result according to the arguments used.
  *
@@ -40,20 +42,6 @@ fun findAdjacentCoordinates(col: Int, row: Int, data: List<IntArray>, diagonal: 
     }
 }
 
-data class Horse(val name: String, val power: Int)
-
-fun horseRacing(horses: Array<out Horse>, rounds: Int): Array<Horse> {
-    val scores: MutableMap<Horse, Int> = horses.associateWith { 0 }.toMutableMap()
-    val distribution = horses.map { it.power }.flatMap { power -> Array(power) { power }.asIterable() }
-
-    val incrementScore = fun(horse: Horse) {
-        scores.computeIfPresent(horse) { _, score -> score + 1 }
-    }
-
-    repeat(rounds) {
-        val winningPower = distribution.random()
-        scores.keys.filter { it.power == winningPower }.onEach(incrementScore).random().let(incrementScore)
-    }
-
-    return horses.sortedByDescending { scores[it] }.toTypedArray()
+open class MatrixModel(input: Sequence<String>) {
+    val data: List<IntArray> = input.map { it.map(Char::digitToInt).toIntArray() }.toList()
 }
