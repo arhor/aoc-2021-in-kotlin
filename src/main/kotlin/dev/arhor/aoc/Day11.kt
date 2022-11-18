@@ -5,17 +5,34 @@ import dev.arhor.aoc.ResourceReader.readInput
 fun main() {
     fun solvePuzzle1(input: Sequence<String>): String {
         val model = OctopusesStateModel(input)
-
         repeat(100) {
             model.makeAStep()
         }
         return model.flashes.toString()
     }
 
+    fun solvePuzzle2(input: Sequence<String>): String {
+        val model = OctopusesStateModel(input)
+        var counter = 1
+
+        while (true) {
+            model.makeAStep()
+            if (model.allFlashedSimultaneously) {
+                break
+            }
+            counter++
+        }
+        return counter.toString()
+    }
+
     println("result 1: ${readInput("/Day11.txt", ::solvePuzzle1)}")
+    println("result 2: ${readInput("/Day11.txt", ::solvePuzzle2)}")
 }
 
 class OctopusesStateModel(input: Sequence<String>) : MatrixModel(input) {
+
+    val allFlashedSimultaneously: Boolean
+        get() = data.all { row -> row.all { it == 0 } }
 
     var flashes = 0
         private set
