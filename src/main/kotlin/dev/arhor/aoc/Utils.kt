@@ -9,6 +9,8 @@ data class Point(val x: Int, val y: Int) {
 
 operator fun List<IntArray>.get(point: Point): Int = this[point.y][point.x]
 
+fun  List<IntArray>.allValuesAre(value: Int): Boolean = all { row -> row.all { it == value } }
+
 /**
  * Converts passed function to the function memorizing its result according to the arguments used.
  *

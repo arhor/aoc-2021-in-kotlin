@@ -32,7 +32,7 @@ fun main() {
 class OctopusesStateModel(input: Sequence<String>) : MatrixModel(input) {
 
     val allFlashedSimultaneously: Boolean
-        get() = data.all { row -> row.all { it == 0 } }
+        get() = data.allValuesAre(0)
 
     var flashes = 0
         private set
