@@ -6,18 +6,7 @@ fun main() {
     fun solvePuzzle1(input: Sequence<String>): String {
         val model = OctopusesStateModel(input)
 
-        repeat(100) {
-            model.incrementEnergy()
-
-            var empoweredOctopuses: List<Point>
-            while (model.findEmpoweredOctopuses().also { empoweredOctopuses = it }.isNotEmpty()) {
-                for (octopus in empoweredOctopuses) {
-                    model.flash(octopus)
-                }
-            }
-
-            model.resetEnergy()
-        }
+        model.simulate(100)
 
         return model.counter.toString()
     }
@@ -66,6 +55,21 @@ class OctopusesStateModel(input: Sequence<String>) : MatrixModel(input) {
             if (data[it] != -1) {
                 data[it.y][it.x]++
             }
+        }
+    }
+
+    fun simulate(steps: Int) {
+        repeat(steps) {
+            incrementEnergy()
+
+            var empoweredOctopuses: List<Point>
+            while (findEmpoweredOctopuses().also { empoweredOctopuses = it }.isNotEmpty()) {
+                for (octopus in empoweredOctopuses) {
+                    flash(octopus)
+                }
+            }
+
+            resetEnergy()
         }
     }
 }
