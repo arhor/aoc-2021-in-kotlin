@@ -1,10 +1,12 @@
 plugins {
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.7.21"
 }
 
+val javaToUse = JavaVersion.VERSION_17
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = javaToUse
+    targetCompatibility = javaToUse
 }
 
 repositories {
@@ -18,7 +20,7 @@ tasks {
 
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "17"
+            jvmTarget = javaToUse.majorVersion
         }
     }
 }
