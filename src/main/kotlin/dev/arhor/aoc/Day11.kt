@@ -6,9 +6,10 @@ fun main() {
     fun solvePuzzle1(input: Sequence<String>): String {
         val model = OctopusesStateModel(input)
 
-        model.simulate(100)
-
-        return model.counter.toString()
+        repeat(100) {
+            model.makeAStep()
+        }
+        return model.flashes.toString()
     }
 
     println("result 1: ${readInput("/Day11.txt", ::solvePuzzle1)}")
@@ -16,21 +17,22 @@ fun main() {
 
 class OctopusesStateModel(input: Sequence<String>) : MatrixModel(input) {
 
-    var counter = 0
+    var flashes = 0
         private set
 
-    fun simulate(steps: Int) {
-        repeat(steps) {
-            incrementEnergy()
+    fun makeAStep() {
+        incrementEnergy()
+        flashes += flashOctopuses()
+        resetEnergy()
+    }
 
-            var empoweredOctopuses: List<Point>
-            while (findEmpoweredOctopuses().also { empoweredOctopuses = it }.isNotEmpty()) {
-                for (octopus in empoweredOctopuses) {
-                    flash(octopus)
-                }
+    private tailrec fun flashOctopuses(counter: Int = 0): Int {
+        findEmpoweredOctopuses().let {
+            return if (it.isEmpty()) {
+                counter
+            } else {
+                flashOctopuses(counter + it.onEach(::flash).count())
             }
-
-            resetEnergy()
         }
     }
 
@@ -66,7 +68,6 @@ class OctopusesStateModel(input: Sequence<String>) : MatrixModel(input) {
 
     private fun flash(point: Point) {
         data[point.y][point.x] = -1
-        counter++
         findAdjacentCoordinates(point.x, point.y, data, diagonal = true).forEach {
             if (data[it] != -1) {
                 data[it.y][it.x]++
