@@ -1,7 +1,7 @@
 package dev.arhor.aoc
 
 import dev.arhor.aoc.ResourceReader.readInput
-import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.max
 
 private val COORDINATES_PATTERN = Regex("([0-9]+),([0-9]+)")
@@ -102,17 +102,7 @@ private class DataModel(input: Sequence<String>) {
             }
         }
 
-        println(
-            array.joinToString(separator = "\n") { line ->
-                line.joinToString(separator = "") { point ->
-                    if (point) {
-                        "#"
-                    } else {
-                        "."
-                    }
-                }
-            }
-        )
+        println(array.stringify { if (it) "#" else "." })
 
         return array.fold(0) { acc, points -> acc + points.count { it } }
     }
@@ -122,16 +112,17 @@ private inline fun <T> fold(items: List<T>, index: Int, combine: (List<T?>, List
     var one = items.slice<T?>(0 until index)
     var two = items.slice<T?>(index + 1 until items.size).reversed()
 
-    val diff = one.size - two.size
-
-    when {
-        diff > 0 -> {
-            two = List(size = abs(diff)) { null } + two
-        }
-
-        diff < 0 -> {
-            one = List(size = abs(diff)) { null } + one
+    (one.size - two.size).let {
+        when {
+            it < 0 -> one = List(size = it.absoluteValue) { null } + one
+            it > 0 -> two = List(size = it.absoluteValue) { null } + two
         }
     }
     return combine(one, two)
+}
+
+private fun <T> List<List<T>>.stringify(transform: (T) -> String): String {
+    return joinToString(separator = "\n") { row ->
+        row.joinToString(separator = "") { col -> transform(col) }
+    }
 }
