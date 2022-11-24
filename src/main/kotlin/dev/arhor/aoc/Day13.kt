@@ -122,7 +122,5 @@ private inline fun <T> fold(items: List<T>, index: Int, combine: (List<T?>, List
 }
 
 private fun <T> List<List<T>>.stringify(transform: (T) -> String): String {
-    return joinToString(separator = "\n") { row ->
-        row.joinToString(separator = "") { col -> transform(col) }
-    }
+    return joinToString(separator = "\n") { it.joinToString(separator = "", transform = transform) }
 }
