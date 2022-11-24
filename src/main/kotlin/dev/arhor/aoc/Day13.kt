@@ -77,19 +77,7 @@ private class DataModel(input: Sequence<String>) {
             when (instruction) {
                 is Fold.X -> {
                     for (it in array) {
-                        val one: MutableList<Int?> = it.slice(0 until instruction.value).toMutableList()
-                        val two: MutableList<Int?> = it.slice(instruction.value + 1 until it.size).reversed().toMutableList()
-
-                        val diff = one.size - two.size
-                        if (diff > 0) {
-                            repeat(diff) {
-                                two.add(0, null)
-                            }
-                        } else if (diff < 0) {
-                            repeat(-diff) {
-                                one.add(0, null)
-                            }
-                        }
+                        val (one, two) = split(it.toTypedArray(), instruction.value)
 
                         result += IntArray(max(one.size, two.size)) { i ->
                             (one[i] ?: 0) or (two[i] ?: 0)
@@ -98,21 +86,7 @@ private class DataModel(input: Sequence<String>) {
                 }
 
                 is Fold.Y -> {
-                    val one: MutableList<IntArray?> = array.slice(0 until instruction.value).toMutableList()
-                    val two: MutableList<IntArray?> = array.slice(instruction.value + 1 until array.size).reversed().toMutableList()
-
-                    val diff = one.size - two.size
-
-                    if (diff > 0) {
-                        repeat(diff) {
-                            two.add(0, null)
-                        }
-                    } else if (diff < 0) {
-                        repeat(-diff) {
-                            one.add(0, null)
-                        }
-                    }
-
+                    val (one, two) = split(array, instruction.value)
                     val max = one.mapNotNull { it?.size }.max()
 
                     for ((index, line) in one.withIndex()) {
@@ -140,18 +114,21 @@ private class DataModel(input: Sequence<String>) {
         return array.fold(0) { acc, points -> acc + points.sum() }
     }
 }
-/*
-.##....##.#..#..##..####.#..#.#..#.#..#
-#..#....#.#..#.#..#....#.#..#.#.#..#..#
-#.......#.####.#..#...#..####.##...#..#
-#.......#.#..#.####..#...#..#.#.#..#..#
-#..#.#..#.#..#.#..#.#....#..#.#.#..#..#
-.##...##..#..#.#..#.####.#..#.#..#..##.
----------------------------------------
-##.#...##.#..#.####.####.#..#.#.##.#..#.
-#..#....#.####.#..#...##.####.###..#..#.
-#.......#.##.#.####..#...#.##.###..#..#.
-#..#.#..#.#..#.####.##...#..#.#.#..#..#.
-####.##.#.#..#.#..#.####.#..#.#..#.###..
 
- */
+private inline fun <reified T> split(it: Array<T>, value: Int): Pair<Array<T?>, Array<T?>> {
+    val one: MutableList<T?> = it.slice(0 until value).toMutableList()
+    val two: MutableList<T?> = it.slice(value + 1 until it.size).reversed().toMutableList()
+
+    val diff = one.size - two.size
+    if (diff > 0) {
+        repeat(diff) {
+            two.add(0, null)
+        }
+    } else if (diff < 0) {
+        repeat(-diff) {
+            one.add(0, null)
+        }
+    }
+
+    return one.toTypedArray() to two.toTypedArray()
+}
