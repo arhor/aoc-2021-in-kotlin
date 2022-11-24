@@ -92,8 +92,9 @@ private class DataModel(input: Sequence<String>) {
                         val max = one.mapNotNull { it?.size }.max()
 
                         for ((index, line) in one.withIndex()) {
+                            val booleans = two[index]
                             result += List(max) { i ->
-                                (line?.get(i) ?: false) or (two[index]?.get(i) ?: false)
+                                (line?.get(i) ?: false) or (booleans?.get(i) ?: false)
                             }
                         }
                         result
