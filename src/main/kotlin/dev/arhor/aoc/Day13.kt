@@ -31,7 +31,7 @@ private sealed interface Fold {
 
 private class DataModel(input: Sequence<String>) {
 
-    private val data: Array<IntArray>
+    private val data: Array<Array<Boolean>>
 
     private val points: List<Point>
     private val instructions: List<Fold>
@@ -61,25 +61,25 @@ private class DataModel(input: Sequence<String>) {
         }
 
         data = Array(size = points.maxOf { it.y } + 1) {
-            IntArray(size = points.maxOf { it.x } + 1)
+            Array(size = points.maxOf { it.x } + 1) { false }
         }
 
         for (point in points) {
-            data[point.y][point.x] = 1
+            data[point.y][point.x] = true
         }
     }
 
     fun calculateVisiblePoints(): Int {
-        var array: List<List<Int>> = data.map { it.toList() }
+        var array: List<List<Boolean>> = data.map { it.toList() }
 
         for (instruction in instructions) {
             when (instruction) {
                 is Fold.X -> {
-                    val result = ArrayList<List<Int>>()
+                    val result = ArrayList<List<Boolean>>()
                     for (it in array) {
                         result += fold(it, instruction.value) { one, two ->
                             List(size = max(one.size, two.size)) { i ->
-                                (one[i] ?: 0) or (two[i] ?: 0)
+                                (one[i] ?: false) or (two[i] ?: false)
                             }
                         }
                     }
@@ -88,12 +88,12 @@ private class DataModel(input: Sequence<String>) {
 
                 is Fold.Y -> {
                     array = fold(array, instruction.value) { one, two ->
-                        val result = ArrayList<List<Int>>()
+                        val result = ArrayList<List<Boolean>>()
                         val max = one.mapNotNull { it?.size }.max()
 
                         for ((index, line) in one.withIndex()) {
                             result += List(max) { i ->
-                                (line?.get(i) ?: 0) or (two[index]?.get(i) ?: 0)
+                                (line?.get(i) ?: false) or (two[index]?.get(i) ?: false)
                             }
                         }
                         result
@@ -105,7 +105,7 @@ private class DataModel(input: Sequence<String>) {
         println(
             array.joinToString(separator = "\n") { line ->
                 line.joinToString(separator = "") { point ->
-                    if (point >= 1) {
+                    if (point) {
                         "#"
                     } else {
                         "."
@@ -114,7 +114,7 @@ private class DataModel(input: Sequence<String>) {
             }
         )
 
-        return array.fold(0) { acc, points -> acc + points.sum() }
+        return array.fold(0) { acc, points -> acc + points.count { it } }
     }
 }
 
