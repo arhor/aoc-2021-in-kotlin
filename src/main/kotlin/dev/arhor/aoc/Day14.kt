@@ -31,9 +31,9 @@ fun main() {
 
                 if (rule != null) {
                     if (i == 0) {
-                        pair.first() + rule + pair.last()
+                        pair[0] + rule + pair[1]
                     } else {
-                        rule + pair.last()
+                        rule + pair[1]
                     }
                 } else {
                     pair
