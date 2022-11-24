@@ -31,7 +31,7 @@ private sealed interface Fold {
 
 private class DataModel(input: Sequence<String>) {
 
-    private val data: Array<Array<Boolean>>
+    private val data: List<MutableList<Boolean>>
 
     private val points: List<Point>
     private val instructions: List<Fold>
@@ -60,8 +60,8 @@ private class DataModel(input: Sequence<String>) {
             }
         }
 
-        data = Array(size = points.maxOf { it.y } + 1) {
-            Array(size = points.maxOf { it.x } + 1) { false }
+        data = List(size = points.maxOf { it.y } + 1) {
+            MutableList(size = points.maxOf { it.x } + 1) { false }
         }
 
         for (point in points) {
@@ -70,43 +70,46 @@ private class DataModel(input: Sequence<String>) {
     }
 
     fun calculateVisiblePoints(): Int {
-        var array: List<List<Boolean>> = data.map { it.toList() }
+        return instructions
+            .fold(data, ::processInstruction)
+            .also { values -> println(values.stringify { if (it) "#" else "." }) }
+            .fold(0, ::countPoints)
+    }
+}
 
-        for (instruction in instructions) {
-            when (instruction) {
-                is Fold.X -> {
-                    val result = ArrayList<List<Boolean>>()
-                    for (it in array) {
-                        result += fold(it, instruction.value) { one, two ->
-                            List(size = max(one.size, two.size)) { i ->
-                                (one[i] ?: false) or (two[i] ?: false)
-                            }
+private fun processInstruction(data: List<List<Boolean>>, instruction: Fold): List<List<Boolean>> {
+    return when (instruction) {
+        is Fold.X -> {
+            data.fold(ArrayList()) { result, values ->
+                result.also {
+                    it += fold(values, instruction.value) { one, two ->
+                        List(size = max(one.size, two.size)) { i ->
+                            (one[i] ?: false) or (two[i] ?: false)
                         }
-                    }
-                    array = result
-                }
-
-                is Fold.Y -> {
-                    array = fold(array, instruction.value) { one, two ->
-                        val result = ArrayList<List<Boolean>>()
-                        val max = one.mapNotNull { it?.size }.max()
-
-                        for ((index, line) in one.withIndex()) {
-                            val booleans = two[index]
-                            result += List(max) { i ->
-                                (line?.get(i) ?: false) or (booleans?.get(i) ?: false)
-                            }
-                        }
-                        result
                     }
                 }
             }
         }
 
-        println(array.stringify { if (it) "#" else "." })
+        is Fold.Y -> {
+            fold(data, instruction.value) { one, two ->
+                val result = ArrayList<List<Boolean>>()
+                val max = one.mapNotNull { it?.size }.max()
 
-        return array.fold(0) { acc, points -> acc + points.count { it } }
+                for ((index, line) in one.withIndex()) {
+                    val booleans = two[index]
+                    result += List(max) { i ->
+                        (line?.get(i) ?: false) or (booleans?.get(i) ?: false)
+                    }
+                }
+                result
+            }
+        }
     }
+}
+
+private fun countPoints(result: Int, values: List<Boolean>): Int {
+    return result + values.count { it }
 }
 
 private inline fun <T> fold(items: List<T>, index: Int, combine: (List<T?>, List<T?>) -> List<T>): List<T> {
