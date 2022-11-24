@@ -1,6 +1,7 @@
 package dev.arhor.aoc
 
 import dev.arhor.aoc.ResourceReader.readInput
+import kotlin.math.abs
 import kotlin.math.max
 
 private val COORDINATES_PATTERN = Regex("([0-9]+),([0-9]+)")
@@ -69,34 +70,36 @@ private class DataModel(input: Sequence<String>) {
     }
 
     fun calculateVisiblePoints(): Int {
-        var array: Array<IntArray> = data
+        var array: List<List<Int>> = data.map { it.toList() }
 
         for (instruction in instructions) {
-            val result = ArrayList<IntArray>()
-
             when (instruction) {
                 is Fold.X -> {
+                    val result = ArrayList<List<Int>>()
                     for (it in array) {
-                        val (one, two) = split(it.toTypedArray(), instruction.value)
-
-                        result += IntArray(max(one.size, two.size)) { i ->
-                            (one[i] ?: 0) or (two[i] ?: 0)
+                        result += fold(it, instruction.value) { one, two ->
+                            List(size = max(one.size, two.size)) { i ->
+                                (one[i] ?: 0) or (two[i] ?: 0)
+                            }
                         }
                     }
+                    array = result
                 }
 
                 is Fold.Y -> {
-                    val (one, two) = split(array, instruction.value)
-                    val max = one.mapNotNull { it?.size }.max()
+                    array = fold(array, instruction.value) { one, two ->
+                        val result = ArrayList<List<Int>>()
+                        val max = one.mapNotNull { it?.size }.max()
 
-                    for ((index, line) in one.withIndex()) {
-                        result += IntArray(max) { i ->
-                            (line?.get(i) ?: 0) or (two[index]?.get(i) ?: 0)
+                        for ((index, line) in one.withIndex()) {
+                            result += List(max) { i ->
+                                (line?.get(i) ?: 0) or (two[index]?.get(i) ?: 0)
+                            }
                         }
+                        result
                     }
                 }
             }
-            array = result.toTypedArray()
         }
 
         println(
@@ -115,20 +118,20 @@ private class DataModel(input: Sequence<String>) {
     }
 }
 
-private inline fun <reified T> split(it: Array<T>, value: Int): Pair<Array<T?>, Array<T?>> {
-    val one: MutableList<T?> = it.slice(0 until value).toMutableList()
-    val two: MutableList<T?> = it.slice(value + 1 until it.size).reversed().toMutableList()
+private inline fun <T> fold(items: List<T>, index: Int, combine: (List<T?>, List<T?>) -> List<T>): List<T> {
+    var one = items.slice<T?>(0 until index)
+    var two = items.slice<T?>(index + 1 until items.size).reversed()
 
     val diff = one.size - two.size
-    if (diff > 0) {
-        repeat(diff) {
-            two.add(0, null)
+
+    when {
+        diff > 0 -> {
+            two = List(size = abs(diff)) { null } + two
         }
-    } else if (diff < 0) {
-        repeat(-diff) {
-            one.add(0, null)
+
+        diff < 0 -> {
+            one = List(size = abs(diff)) { null } + one
         }
     }
-
-    return one.toTypedArray() to two.toTypedArray()
+    return combine(one, two)
 }
